@@ -1,6 +1,7 @@
 package com.dresta0056.whowantcoffee.ui.detail
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,12 +51,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.compose.ui.tooling.preview.Preview
+import com.dresta0056.whowantcoffee.ui.theme.WhoWantCoffeeTheme
 import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.util.getProcessDisplayName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoffeeDetailScreen(
     navController: NavHostController,
@@ -71,12 +75,6 @@ fun CoffeeDetailScreen(
     val isFinished by viewModel.isFinished.collectAsState()
     val snackbarMessageRes by viewModel.snackbarMessageRes.collectAsState()
     val snackbarMessageArg by viewModel.snackbarMessageArg.collectAsState()
-
-    var menuExpanded by remember { mutableStateOf(false) }
-    var processExpanded by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    val processes = listOf("Washed", "Honey", "Natural")
 
     LaunchedEffect(isFinished) {
         if (isFinished) {
@@ -107,12 +105,81 @@ fun CoffeeDetailScreen(
         }
     }
 
+    CoffeeDetailContent(
+        name = name,
+        process = process,
+        rating = rating,
+        notes = notes,
+        isEditMode = viewModel.isEditMode,
+        onBackClick = { navController.popBackStack() },
+        onUpdateName = viewModel::updateName,
+        onUpdateProcess = viewModel::updateProcess,
+        onUpdateRating = viewModel::updateRating,
+        onUpdateNotes = viewModel::updateNotes,
+        onSave = {
+            if (viewModel.isInputValid()) {
+                viewModel.save()
+            } else {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.validation_toast),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        },
+        onShareClick = {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    viewModel.shareText(getProcessDisplayName(context, process))
+                )
+            }
+
+            context.startActivity(
+                Intent.createChooser(
+                    intent,
+                    context.getString(R.string.share_coffee)
+                )
+            )
+        },
+        onArchiveClick = viewModel::archiveCoffee,
+        onDeleteConfirm = viewModel::deleteCoffee
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CoffeeDetailContent(
+    name: String,
+    process: String,
+    rating: Int,
+    notes: String,
+    isEditMode: Boolean,
+    onBackClick: () -> Unit,
+    onUpdateName: (String) -> Unit,
+    onUpdateProcess: (String) -> Unit,
+    onUpdateRating: (Int) -> Unit,
+    onUpdateNotes: (String) -> Unit,
+    onSave: () -> Unit,
+    onShareClick: () -> Unit,
+    onArchiveClick: () -> Unit,
+    onDeleteConfirm: () -> Unit
+) {
+    val context = LocalContext.current
+    var menuExpanded by remember { mutableStateOf(false) }
+    var processExpanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val processes = listOf("Washed", "Honey", "Natural")
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.isEditMode) {
+                        text = if (isEditMode) {
                             stringResource(R.string.edit_coffee_title)
                         } else {
                             stringResource(R.string.add_coffee_title)
@@ -121,12 +188,14 @@ fun CoffeeDetailScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary
+                ),
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back)
@@ -134,36 +203,15 @@ fun CoffeeDetailScreen(
                     }
                 },
                 actions = {
-                    if (viewModel.isEditMode) {
-                        IconButton(
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        viewModel.shareText(getProcessDisplayName(context, process))
-                                    )
-                                }
-
-                                context.startActivity(
-                                    Intent.createChooser(
-                                        intent,
-                                        context.getString(R.string.share_coffee)
-                                    )
-                                )
-                            }
-                        ) {
+                    if (isEditMode) {
+                        IconButton(onClick = onShareClick) {
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = stringResource(R.string.cd_share_coffee)
                             )
                         }
 
-                        IconButton(
-                            onClick = {
-                                menuExpanded = true
-                            }
-                        ) {
+                        IconButton(onClick = { menuExpanded = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = stringResource(R.string.cd_menu)
@@ -172,9 +220,7 @@ fun CoffeeDetailScreen(
 
                         DropdownMenu(
                             expanded = menuExpanded,
-                            onDismissRequest = {
-                                menuExpanded = false
-                            }
+                            onDismissRequest = { menuExpanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.archive)) },
@@ -186,7 +232,7 @@ fun CoffeeDetailScreen(
                                 },
                                 onClick = {
                                     menuExpanded = false
-                                    viewModel.archiveCoffee()
+                                    onArchiveClick()
                                 }
                             )
 
@@ -223,7 +269,7 @@ fun CoffeeDetailScreen(
         ) {
             OutlinedTextField(
                 value = name,
-                onValueChange = viewModel::updateName,
+                onValueChange = onUpdateName,
                 label = { Text(stringResource(R.string.coffee_name)) },
                 isError = name.isBlank(),
                 supportingText = {
@@ -272,7 +318,7 @@ fun CoffeeDetailScreen(
                         DropdownMenuItem(
                             text = { Text(getProcessDisplayName(context, item)) },
                             onClick = {
-                                viewModel.updateProcess(item)
+                                onUpdateProcess(item)
                                 processExpanded = false
                             }
                         )
@@ -285,14 +331,16 @@ fun CoffeeDetailScreen(
             ) {
                 Text(
                     text = stringResource(R.string.rating),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 Row {
                     for (star in 1..5) {
                         IconButton(
                             onClick = {
-                                viewModel.updateRating(star)
+                                onUpdateRating(star)
                             }
                         ) {
                             Icon(
@@ -310,7 +358,7 @@ fun CoffeeDetailScreen(
 
             OutlinedTextField(
                 value = notes,
-                onValueChange = viewModel::updateNotes,
+                onValueChange = onUpdateNotes,
                 label = { Text(stringResource(R.string.notes)) },
                 placeholder = {
                     Text(stringResource(R.string.notes_placeholder))
@@ -320,17 +368,11 @@ fun CoffeeDetailScreen(
             )
 
             Button(
-                onClick = {
-                    if (viewModel.isInputValid()) {
-                        viewModel.save()
-                    } else {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.validation_toast),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
+                onClick = onSave,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
@@ -339,7 +381,7 @@ fun CoffeeDetailScreen(
                 )
 
                 Text(
-                    text = if (viewModel.isEditMode) {
+                    text = if (isEditMode) {
                         stringResource(R.string.save_changes)
                     } else {
                         stringResource(R.string.add_to_log)
@@ -356,7 +398,11 @@ fun CoffeeDetailScreen(
                 showDeleteDialog = false
             },
             title = {
-                Text(context.getString(R.string.delete_coffee_title, name))
+                Text(
+                    text = context.getString(R.string.delete_coffee_title, name),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
             },
             text = {
                 Text(stringResource(R.string.delete_coffee_body))
@@ -365,7 +411,7 @@ fun CoffeeDetailScreen(
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        viewModel.deleteCoffee()
+                        onDeleteConfirm()
                     }
                 ) {
                     Text(
@@ -383,6 +429,30 @@ fun CoffeeDetailScreen(
                     Text(stringResource(R.string.keep_it))
                 }
             }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+fun CoffeeDetailEditPreview() {
+    WhoWantCoffeeTheme {
+        CoffeeDetailContent(
+            name = "Ethiopia Yirgacheffe",
+            process = "Washed",
+            rating = 5,
+            notes = "Floral, Citrus, Bergamot",
+            isEditMode = true,
+            onBackClick = {},
+            onUpdateName = {},
+            onUpdateProcess = {},
+            onUpdateRating = {},
+            onUpdateNotes = {},
+            onSave = {},
+            onShareClick = {},
+            onArchiveClick = {},
+            onDeleteConfirm = {}
         )
     }
 }
