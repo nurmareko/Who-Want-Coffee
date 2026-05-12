@@ -52,9 +52,6 @@
 
     <!-- About -->
     <string name="about_title">About</string>
-    <string name="about_tagline">A log of every coffee worth remembering.</string>
-    <string name="about_body">Every coffee tells a story — origin, process, technique. This is where you keep yours.</string>
-    <string name="version_name">Version 1.0</string>
 
     <!-- Snackbar -->
     <string name="snackbar_added">\'%1$s\' added.</string>

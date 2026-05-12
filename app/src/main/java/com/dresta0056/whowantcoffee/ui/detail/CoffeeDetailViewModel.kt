@@ -8,10 +8,12 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.WhoWantCoffeeApplication
 import com.dresta0056.whowantcoffee.data.Coffee
 import com.dresta0056.whowantcoffee.data.CoffeeRepository
 import com.dresta0056.whowantcoffee.nav.KEY_ID_COFFEE
+import com.dresta0056.whowantcoffee.util.ratingStars
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -44,8 +46,11 @@ class CoffeeDetailViewModel(
     private val _isFinished = MutableStateFlow(false)
     val isFinished: StateFlow<Boolean> = _isFinished
 
-    private val _actionMessage = MutableStateFlow("")
-    val actionMessage: StateFlow<String> = _actionMessage
+    private val _snackbarMessageRes = MutableStateFlow<Int?>(null)
+    val snackbarMessageRes: StateFlow<Int?> = _snackbarMessageRes
+
+    private val _snackbarMessageArg = MutableStateFlow<String?>(null)
+    val snackbarMessageArg: StateFlow<String?> = _snackbarMessageArg
 
     init {
         if (id != null) {
@@ -101,7 +106,8 @@ class CoffeeDetailViewModel(
                     )
                 )
 
-                _actionMessage.value = "Saved."
+                _snackbarMessageRes.value = R.string.snackbar_saved
+                _snackbarMessageArg.value = null
             } else {
                 repository.addCoffee(
                     name = _name.value.trim(),
@@ -110,7 +116,8 @@ class CoffeeDetailViewModel(
                     notes = _notes.value.trim().ifBlank { null }
                 )
 
-                _actionMessage.value = "'${_name.value.trim()}' added."
+                _snackbarMessageRes.value = R.string.snackbar_added
+                _snackbarMessageArg.value = _name.value.trim()
             }
 
             _isFinished.value = true
@@ -122,7 +129,8 @@ class CoffeeDetailViewModel(
 
         viewModelScope.launch {
             repository.archive(coffeeId)
-            _actionMessage.value = "'${_name.value.trim()}' archived."
+            _snackbarMessageRes.value = R.string.snackbar_archived
+            _snackbarMessageArg.value = _name.value.trim()
             _isFinished.value = true
         }
     }
@@ -140,13 +148,14 @@ class CoffeeDetailViewModel(
 
         viewModelScope.launch {
             repository.hardDelete(coffee)
-            _actionMessage.value = "'${coffee.name}' deleted."
+            _snackbarMessageRes.value = R.string.snackbar_deleted
+            _snackbarMessageArg.value = coffee.name
             _isFinished.value = true
         }
     }
 
-    fun shareText(): String {
-        return "${_name.value} (${_process.value})\n${"★".repeat(_rating.value)}${"☆".repeat(5 - _rating.value)}\n${_notes.value}"
+    fun shareText(localizedProcess: String): String {
+        return "${_name.value} ($localizedProcess)\n${ratingStars(_rating.value)}\n${_notes.value}"
     }
 
     companion object {

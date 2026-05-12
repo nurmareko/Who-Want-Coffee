@@ -36,12 +36,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.data.Coffee
+import com.dresta0056.whowantcoffee.util.getProcessDisplayName
 import com.dresta0056.whowantcoffee.util.ratingStars
 import com.dresta0056.whowantcoffee.util.relativeDate
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +60,7 @@ fun CellarScreen(
     viewModel: CellarViewModel = viewModel(factory = CellarViewModel.Factory)
 ) {
     val coffees by viewModel.archivedCoffees.collectAsState(initial = emptyList())
+    val context = LocalContext.current
 
     var coffeeToDelete by remember { mutableStateOf<Coffee?>(null) }
 
@@ -64,7 +69,7 @@ fun CellarScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = "Cellar",
+                        text = stringResource(R.string.cellar_title),
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Bold
                     )
@@ -77,7 +82,7 @@ fun CellarScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 }
@@ -100,7 +105,7 @@ fun CellarScreen(
             ) {
                 item {
                     Text(
-                        text = "Coffees you've set aside.",
+                        text = stringResource(R.string.cellar_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         fontStyle = FontStyle.Italic,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -115,7 +120,7 @@ fun CellarScreen(
 
                             snackbarScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "'${coffee.name}' restored."
+                                    context.getString(R.string.snackbar_restored, coffee.name)
                                 )
                             }
                         },
@@ -138,10 +143,10 @@ fun CellarScreen(
                 coffeeToDelete = null
             },
             title = {
-                Text("Delete '${coffeeToDelete?.name}'?")
+                Text(context.getString(R.string.delete_coffee_title, coffeeToDelete?.name))
             },
             text = {
-                Text("Removing this from your log. No coming back.")
+                Text(stringResource(R.string.delete_cellar_body))
             },
             confirmButton = {
                 TextButton(
@@ -151,7 +156,7 @@ fun CellarScreen(
 
                             snackbarScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "'${coffee.name}' deleted."
+                                    context.getString(R.string.snackbar_deleted, coffee.name)
                                 )
                             }
                         }
@@ -160,7 +165,7 @@ fun CellarScreen(
                     }
                 ) {
                     Text(
-                        text = "Delete",
+                        text = stringResource(R.string.delete),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -171,7 +176,7 @@ fun CellarScreen(
                         coffeeToDelete = null
                     }
                 ) {
-                    Text("Keep it")
+                    Text(stringResource(R.string.keep_it))
                 }
             }
         )
@@ -194,13 +199,13 @@ private fun EmptyCellar(
         )
 
         Text(
-            text = "Cellar's empty.",
+            text = stringResource(R.string.cellar_empty_primary),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Coffees you archive will land here.",
+            text = stringResource(R.string.cellar_empty_secondary),
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -212,6 +217,7 @@ private fun CellarCard(
     onRestore: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -235,8 +241,8 @@ private fun CellarCard(
                 )
 
                 val archivedText = coffee.archivedAt?.let {
-                    "Archived ${relativeDate(it)}"
-                } ?: "Archived"
+                    context.getString(R.string.archived_relative, relativeDate(context, it))
+                } ?: stringResource(R.string.archived)
 
                 Text(
                     text = archivedText,
@@ -244,7 +250,7 @@ private fun CellarCard(
                 )
 
                 Text(
-                    text = "${coffee.process} · ${ratingStars(coffee.rating)}",
+                    text = "${getProcessDisplayName(context, coffee.process)} · ${ratingStars(coffee.rating)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -255,7 +261,7 @@ private fun CellarCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Restore,
-                        contentDescription = "Restore"
+                        contentDescription = stringResource(R.string.cd_restore)
                     )
                 }
 
@@ -264,7 +270,7 @@ private fun CellarCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteForever,
-                        contentDescription = "Delete forever",
+                        contentDescription = stringResource(R.string.cd_delete_forever),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }

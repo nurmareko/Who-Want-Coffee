@@ -44,13 +44,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.data.Coffee
 import com.dresta0056.whowantcoffee.nav.Screen
+import com.dresta0056.whowantcoffee.util.getProcessDisplayName
 import com.dresta0056.whowantcoffee.util.ratingStars
 import com.dresta0056.whowantcoffee.util.relativeDate
 
@@ -76,11 +80,11 @@ fun CoffeeListScreen(
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add coffee"
+                        contentDescription = stringResource(R.string.cd_add_coffee)
                     )
                 },
                 text = {
-                    Text("Add coffee")
+                    Text(stringResource(R.string.add_coffee))
                 },
                 elevation = FloatingActionButtonDefaults.elevation()
             )
@@ -89,7 +93,7 @@ fun CoffeeListScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = "Who Want Coffee",
+                        text = stringResource(R.string.coffee_list_title),
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Bold
                     )
@@ -102,7 +106,7 @@ fun CoffeeListScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = "Toggle sort"
+                            contentDescription = stringResource(R.string.cd_toggle_sort)
                         )
                     }
 
@@ -117,7 +121,7 @@ fun CoffeeListScreen(
                             } else {
                                 Icons.AutoMirrored.Filled.List
                             },
-                            contentDescription = "Toggle view"
+                            contentDescription = stringResource(R.string.cd_toggle_view)
                         )
                     }
 
@@ -128,7 +132,7 @@ fun CoffeeListScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Menu"
+                            contentDescription = stringResource(R.string.cd_menu)
                         )
                     }
 
@@ -142,9 +146,9 @@ fun CoffeeListScreen(
                             text = {
                                 Text(
                                     text = if (archivedCount > 0) {
-                                        "Cellar ($archivedCount)"
+                                        stringResource(R.string.cellar_with_count, archivedCount)
                                     } else {
-                                        "Cellar"
+                                        stringResource(R.string.cellar)
                                     }
                                 )
                             },
@@ -155,7 +159,7 @@ fun CoffeeListScreen(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("About") },
+                            text = { Text(stringResource(R.string.about)) },
                             onClick = {
                                 menuExpanded = false
                                 navController.navigate(Screen.About.route)
@@ -225,13 +229,13 @@ private fun EmptyCoffeeList(
         )
 
         Text(
-            text = "No coffees logged yet.",
+            text = stringResource(R.string.no_coffees_logged),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Tap + to add your first.",
+            text = stringResource(R.string.tap_add_first),
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -242,6 +246,7 @@ private fun CoffeeCard(
     coffee: Coffee,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,7 +272,7 @@ private fun CoffeeCard(
                 )
 
                 Text(
-                    text = "${coffee.process} · ${ratingStars(coffee.rating)}",
+                    text = "${getProcessDisplayName(context, coffee.process)} · ${ratingStars(coffee.rating)}",
                     style = MaterialTheme.typography.bodySmall
                 )
 
@@ -281,7 +286,7 @@ private fun CoffeeCard(
             }
 
             Text(
-                text = relativeDate(coffee.dateAdded),
+                text = relativeDate(context, coffee.dateAdded),
                 style = MaterialTheme.typography.labelSmall
             )
         }
@@ -318,6 +323,7 @@ private fun GridCoffeeCard(
     coffee: Coffee,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -338,7 +344,7 @@ private fun GridCoffeeCard(
             )
 
             Text(
-                text = coffee.process,
+                text = getProcessDisplayName(context, coffee.process),
                 style = MaterialTheme.typography.labelSmall
             )
 

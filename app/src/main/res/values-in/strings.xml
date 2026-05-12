@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">Who Want Coffee</string>
+
+    <!-- Coffee List -->
+    <string name="coffee_list_title">Who Want Coffee</string>
+    <string name="add_coffee">Tambah kopi</string>
+    <string name="cellar">Lemari</string>
+    <string name="cellar_with_count">Lemari (%1$d)</string>
+    <string name="about">Tentang</string>
+    <string name="no_coffees_logged">Belum ada kopi yang dicatat.</string>
+    <string name="tap_add_first">Tap + untuk menambahkan yang pertama.</string>
+
+    <!-- Detail -->
+    <string name="add_coffee_title">Tambah kopi</string>
+    <string name="edit_coffee_title">Ubah kopi</string>
+    <string name="coffee_name">Nama kopi</string>
+    <string name="process">Proses</string>
+    <string name="rating">Rating</string>
+    <string name="notes">Catatan</string>
+    <string name="notes_placeholder">Catatan rasa, parameter seduh, apa pun…</string>
+    <string name="add_to_log">Tambahkan</string>
+    <string name="save_changes">Simpan perubahan</string>
+    <string name="archive">Arsipkan</string>
+    <string name="delete">Hapus</string>
+    <string name="keep_it">Simpan saja</string>
+    <string name="share_coffee">Bagikan kopi</string>
+
+    <!-- Process options -->
+    <string name="process_washed">Washed</string>
+    <string name="process_honey">Honey</string>
+    <string name="process_natural">Natural</string>
+
+    <!-- Validation -->
+    <string name="validation_toast">Harap isi field yang wajib</string>
+    <string name="validation_name_empty">Setiap kopi butuh nama</string>
+    <string name="validation_process_empty">Pilih proses</string>
+
+    <!-- Delete dialogs -->
+    <string name="delete_coffee_title">Hapus \'%1$s\'?</string>
+    <string name="delete_coffee_body">Kopinya akan hilang permanen.</string>
+    <string name="delete_cellar_body">Menghapus kopi dari catatanmu.</string>
+
+    <!-- Cellar -->
+    <string name="cellar_title">Lemari</string>
+    <string name="cellar_subtitle">Kopi yang kamu sisihkan.</string>
+    <string name="cellar_empty_primary">Lemarinya kosong.</string>
+    <string name="cellar_empty_secondary">Kopi yang kamu arsipkan akan muncul di sini.</string>
+    <string name="archived_relative">Diarsipkan %1$s</string>
+    <string name="archived">Diarsipkan</string>
+    <string name="restore">Pulihkan</string>
+    <string name="delete_forever">Hapus permanen</string>
+
+    <!-- About -->
+    <string name="about_title">Tentang</string>
+
+    <!-- Snackbar -->
+    <string name="snackbar_added">\'%1$s\' ditambahkan.</string>
+    <string name="snackbar_saved">Tersimpan.</string>
+    <string name="snackbar_archived">\'%1$s\' diarsipkan.</string>
+    <string name="snackbar_restored">\'%1$s\' dipulihkan.</string>
+    <string name="snackbar_deleted">\'%1$s\' dihapus.</string>
+    <string name="undo">URUNG</string>
+
+    <!-- Relative date -->
+    <string name="relative_today">Hari ini</string>
+    <string name="relative_yesterday">Kemarin</string>
+    <string name="relative_days_ago">%1$d hari lalu</string>
+    <string name="relative_weeks_ago">%1$d minggu lalu</string>
+    <string name="relative_months_ago">%1$d bulan lalu</string>
+    <string name="relative_over_year">Lebih dari setahun lalu</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_add_coffee">Tambah kopi</string>
+    <string name="cd_back">Kembali</string>
+    <string name="cd_menu">Menu</string>
+    <string name="cd_toggle_sort">Ubah urutan</string>
+    <string name="cd_toggle_view">Ubah tampilan</string>
+    <string name="cd_restore">Pulihkan</string>
+    <string name="cd_delete_forever">Hapus permanen</string>
+    <string name="cd_share_coffee">Bagikan kopi</string>
+    <string name="cd_star_rating">%1$d bintang</string>
+</resources>

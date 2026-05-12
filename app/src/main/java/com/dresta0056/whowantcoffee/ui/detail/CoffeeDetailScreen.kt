@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
@@ -43,11 +42,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.dresta0056.whowantcoffee.R
+import com.dresta0056.whowantcoffee.util.getProcessDisplayName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -67,7 +69,8 @@ fun CoffeeDetailScreen(
     val rating by viewModel.rating.collectAsState()
     val notes by viewModel.notes.collectAsState()
     val isFinished by viewModel.isFinished.collectAsState()
-    val actionMessage by viewModel.actionMessage.collectAsState()
+    val snackbarMessageRes by viewModel.snackbarMessageRes.collectAsState()
+    val snackbarMessageArg by viewModel.snackbarMessageArg.collectAsState()
 
     var menuExpanded by remember { mutableStateOf(false) }
     var processExpanded by remember { mutableStateOf(false) }
@@ -80,13 +83,25 @@ fun CoffeeDetailScreen(
             navController.popBackStack()
 
             snackbarScope.launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = actionMessage,
-                    actionLabel = if (actionMessage.contains("archived")) "UNDO" else null
-                )
+                snackbarMessageRes?.let { resId ->
+                    val message = if (snackbarMessageArg != null) {
+                        context.getString(resId, snackbarMessageArg)
+                    } else {
+                        context.getString(resId)
+                    }
 
-                if (result == SnackbarResult.ActionPerformed) {
-                    viewModel.undoArchive()
+                    val result = snackbarHostState.showSnackbar(
+                        message = message,
+                        actionLabel = if (resId == R.string.snackbar_archived) {
+                            context.getString(R.string.undo)
+                        } else {
+                            null
+                        }
+                    )
+
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.undoArchive()
+                    }
                 }
             }
         }
@@ -97,7 +112,11 @@ fun CoffeeDetailScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = if (viewModel.isEditMode) "Edit coffee" else "Add coffee",
+                        text = if (viewModel.isEditMode) {
+                            stringResource(R.string.edit_coffee_title)
+                        } else {
+                            stringResource(R.string.add_coffee_title)
+                        },
                         fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight.Bold
                     )
@@ -110,7 +129,7 @@ fun CoffeeDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
@@ -120,17 +139,23 @@ fun CoffeeDetailScreen(
                             onClick = {
                                 val intent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, viewModel.shareText())
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        viewModel.shareText(getProcessDisplayName(context, process))
+                                    )
                                 }
 
                                 context.startActivity(
-                                    Intent.createChooser(intent, "Share coffee")
+                                    Intent.createChooser(
+                                        intent,
+                                        context.getString(R.string.share_coffee)
+                                    )
                                 )
                             }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Share,
-                                contentDescription = "Share coffee"
+                                contentDescription = stringResource(R.string.cd_share_coffee)
                             )
                         }
 
@@ -141,7 +166,7 @@ fun CoffeeDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Menu"
+                                contentDescription = stringResource(R.string.cd_menu)
                             )
                         }
 
@@ -152,7 +177,7 @@ fun CoffeeDetailScreen(
                             }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Archive") },
+                                text = { Text(stringResource(R.string.archive)) },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Archive,
@@ -168,7 +193,7 @@ fun CoffeeDetailScreen(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = "Delete",
+                                        text = stringResource(R.string.delete),
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 },
@@ -199,11 +224,11 @@ fun CoffeeDetailScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = viewModel::updateName,
-                label = { Text("Coffee name") },
+                label = { Text(stringResource(R.string.coffee_name)) },
                 isError = name.isBlank(),
                 supportingText = {
                     if (name.isBlank()) {
-                        Text("Every coffee needs a name")
+                        Text(stringResource(R.string.validation_name_empty))
                     }
                 },
                 singleLine = true,
@@ -217,14 +242,14 @@ fun CoffeeDetailScreen(
                 }
             ) {
                 OutlinedTextField(
-                    value = process,
+                    value = getProcessDisplayName(context, process),
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Process") },
+                    label = { Text(stringResource(R.string.process)) },
                     isError = process.isBlank(),
                     supportingText = {
                         if (process.isBlank()) {
-                            Text("Pick a process")
+                            Text(stringResource(R.string.validation_process_empty))
                         }
                     },
                     trailingIcon = {
@@ -245,7 +270,7 @@ fun CoffeeDetailScreen(
                 ) {
                     processes.forEach { item ->
                         DropdownMenuItem(
-                            text = { Text(item) },
+                            text = { Text(getProcessDisplayName(context, item)) },
                             onClick = {
                                 viewModel.updateProcess(item)
                                 processExpanded = false
@@ -259,7 +284,7 @@ fun CoffeeDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Rating",
+                    text = stringResource(R.string.rating),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -276,7 +301,7 @@ fun CoffeeDetailScreen(
                                 } else {
                                     Icons.Outlined.Star
                                 },
-                                contentDescription = "$star stars"
+                                contentDescription = stringResource(R.string.cd_star_rating, star)
                             )
                         }
                     }
@@ -286,9 +311,9 @@ fun CoffeeDetailScreen(
             OutlinedTextField(
                 value = notes,
                 onValueChange = viewModel::updateNotes,
-                label = { Text("Notes") },
+                label = { Text(stringResource(R.string.notes)) },
                 placeholder = {
-                    Text("Tasting notes, brewing parameters, anything…")
+                    Text(stringResource(R.string.notes_placeholder))
                 },
                 minLines = 4,
                 modifier = Modifier.fillMaxWidth()
@@ -301,7 +326,7 @@ fun CoffeeDetailScreen(
                     } else {
                         Toast.makeText(
                             context,
-                            "Please fill required fields",
+                            context.getString(R.string.validation_toast),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -315,9 +340,9 @@ fun CoffeeDetailScreen(
 
                 Text(
                     text = if (viewModel.isEditMode) {
-                        "Save changes"
+                        stringResource(R.string.save_changes)
                     } else {
-                        "Add to log"
+                        stringResource(R.string.add_to_log)
                     },
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -331,10 +356,10 @@ fun CoffeeDetailScreen(
                 showDeleteDialog = false
             },
             title = {
-                Text("Delete '$name'?")
+                Text(context.getString(R.string.delete_coffee_title, name))
             },
             text = {
-                Text("This is permanent. The coffee will be gone.")
+                Text(stringResource(R.string.delete_coffee_body))
             },
             confirmButton = {
                 TextButton(
@@ -344,7 +369,7 @@ fun CoffeeDetailScreen(
                     }
                 ) {
                     Text(
-                        text = "Delete",
+                        text = stringResource(R.string.delete),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -355,7 +380,7 @@ fun CoffeeDetailScreen(
                         showDeleteDialog = false
                     }
                 ) {
-                    Text("Keep it")
+                    Text(stringResource(R.string.keep_it))
                 }
             }
         )
