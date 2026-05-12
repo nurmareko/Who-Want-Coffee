@@ -1,3 +1,85 @@
 <resources>
     <string name="app_name">Who Want Coffee</string>
+
+    <!-- Coffee List -->
+    <string name="coffee_list_title">Who Want Coffee</string>
+    <string name="add_coffee">Add coffee</string>
+    <string name="cellar">Cellar</string>
+    <string name="cellar_with_count">Cellar (%1$d)</string>
+    <string name="about">About</string>
+    <string name="no_coffees_logged">No coffees logged yet.</string>
+    <string name="tap_add_first">Tap + to add your first.</string>
+
+    <!-- Detail -->
+    <string name="add_coffee_title">Add coffee</string>
+    <string name="edit_coffee_title">Edit coffee</string>
+    <string name="coffee_name">Coffee name</string>
+    <string name="process">Process</string>
+    <string name="rating">Rating</string>
+    <string name="notes">Notes</string>
+    <string name="notes_placeholder">Tasting notes, brewing parameters, anything…</string>
+    <string name="add_to_log">Add to log</string>
+    <string name="save_changes">Save changes</string>
+    <string name="archive">Archive</string>
+    <string name="delete">Delete</string>
+    <string name="keep_it">Keep it</string>
+    <string name="share_coffee">Share coffee</string>
+
+    <!-- Process options -->
+    <string name="process_washed">Washed</string>
+    <string name="process_honey">Honey</string>
+    <string name="process_natural">Natural</string>
+
+    <!-- Validation -->
+    <string name="validation_toast">Please fill required fields</string>
+    <string name="validation_name_empty">Every coffee needs a name</string>
+    <string name="validation_process_empty">Pick a process</string>
+
+    <!-- Delete dialogs -->
+    <string name="delete_coffee_title">Delete \'%1$s\'?</string>
+    <string name="delete_coffee_body">This is permanent. The coffee will be gone.</string>
+    <string name="delete_cellar_body">Removing this from your log. No coming back.</string>
+
+    <!-- Cellar -->
+    <string name="cellar_title">Cellar</string>
+    <string name="cellar_subtitle">Coffees you\'ve set aside.</string>
+    <string name="cellar_empty_primary">Cellar\'s empty.</string>
+    <string name="cellar_empty_secondary">Coffees you archive will land here.</string>
+    <string name="archived_relative">Archived %1$s</string>
+    <string name="archived">Archived</string>
+    <string name="restore">Restore</string>
+    <string name="delete_forever">Delete forever</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_tagline">A log of every coffee worth remembering.</string>
+    <string name="about_body">Every coffee tells a story — origin, process, technique. This is where you keep yours.</string>
+    <string name="version_name">Version 1.0</string>
+
+    <!-- Snackbar -->
+    <string name="snackbar_added">\'%1$s\' added.</string>
+    <string name="snackbar_saved">Saved.</string>
+    <string name="snackbar_archived">\'%1$s\' archived.</string>
+    <string name="snackbar_restored">\'%1$s\' restored.</string>
+    <string name="snackbar_deleted">\'%1$s\' deleted.</string>
+    <string name="undo">UNDO</string>
+
+    <!-- Relative date -->
+    <string name="relative_today">Today</string>
+    <string name="relative_yesterday">Yesterday</string>
+    <string name="relative_days_ago">%1$d days ago</string>
+    <string name="relative_weeks_ago">%1$d weeks ago</string>
+    <string name="relative_months_ago">%1$d months ago</string>
+    <string name="relative_over_year">Over a year ago</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_add_coffee">Add coffee</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_menu">Menu</string>
+    <string name="cd_toggle_sort">Toggle sort</string>
+    <string name="cd_toggle_view">Toggle view</string>
+    <string name="cd_restore">Restore</string>
+    <string name="cd_delete_forever">Delete forever</string>
+    <string name="cd_share_coffee">Share coffee</string>
+    <string name="cd_star_rating">%1$d stars</string>
 </resources>
