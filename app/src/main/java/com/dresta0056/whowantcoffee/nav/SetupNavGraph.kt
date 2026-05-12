@@ -1,5 +1,6 @@
 package com.dresta0056.whowantcoffee.nav
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,10 +12,13 @@ import com.dresta0056.whowantcoffee.ui.about.AboutScreen
 import com.dresta0056.whowantcoffee.ui.cellar.CellarScreen
 import com.dresta0056.whowantcoffee.ui.coffeelist.CoffeeListScreen
 import com.dresta0056.whowantcoffee.ui.detail.CoffeeDetailScreen
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun SetupNavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    snackbarHostState: SnackbarHostState,
+    snackbarScope: CoroutineScope
 ) {
     NavHost(
         navController = navController,
@@ -25,7 +29,11 @@ fun SetupNavGraph(
         }
 
         composable(route = Screen.CoffeeAdd.route) {
-            CoffeeDetailScreen(navController = navController)
+            CoffeeDetailScreen(
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+                snackbarScope = snackbarScope
+            )
         }
 
         composable(
@@ -40,7 +48,9 @@ fun SetupNavGraph(
 
             CoffeeDetailScreen(
                 navController = navController,
-                id = id
+                id = id,
+                snackbarHostState = snackbarHostState,
+                snackbarScope = snackbarScope
             )
         }
 
