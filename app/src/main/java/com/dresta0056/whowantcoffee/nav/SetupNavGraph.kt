@@ -55,7 +55,11 @@ fun SetupNavGraph(
         }
 
         composable(route = Screen.Cellar.route) {
-            CellarScreen(navController)
+            CellarScreen(
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+                snackbarScope = snackbarScope
+            )
         }
 
         composable(route = Screen.About.route) {
