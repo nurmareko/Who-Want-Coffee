@@ -16,7 +16,5 @@ data class Coffee(
     val dateAdded: Long,
     val lastUpdated: Long,
 
-    // null = active list
-    // not null = archived in Cellar
     val archivedAt: Long? = null
 )
