@@ -54,7 +54,7 @@ import androidx.navigation.NavHostController
 import androidx.compose.ui.tooling.preview.Preview
 import com.dresta0056.whowantcoffee.ui.theme.WhoWantCoffeeTheme
 import com.dresta0056.whowantcoffee.R
-import com.dresta0056.whowantcoffee.util.getProcessDisplayName
+import com.dresta0056.whowantcoffee.util.getProcessDisplayNameRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -76,22 +76,26 @@ fun CoffeeDetailScreen(
     val snackbarMessageRes by viewModel.snackbarMessageRes.collectAsState()
     val snackbarMessageArg by viewModel.snackbarMessageArg.collectAsState()
 
+    val snackbarMessage = snackbarMessageRes?.let { resId ->
+        snackbarMessageArg?.let { arg ->
+            stringResource(resId, arg)
+        } ?: stringResource(resId)
+    }
+    val undoLabel = stringResource(R.string.undo)
+    val validationToast = stringResource(R.string.validation_toast)
+    val shareTitle = stringResource(R.string.share_coffee)
+    val processDisplayName = getProcessDisplayNameRes(process)?.let { stringResource(it) } ?: process
+
     LaunchedEffect(isFinished) {
         if (isFinished) {
             navController.popBackStack()
 
             snackbarScope.launch {
-                snackbarMessageRes?.let { resId ->
-                    val message = if (snackbarMessageArg != null) {
-                        context.getString(resId, snackbarMessageArg)
-                    } else {
-                        context.getString(resId)
-                    }
-
+                snackbarMessage?.let { message ->
                     val result = snackbarHostState.showSnackbar(
                         message = message,
-                        actionLabel = if (resId == R.string.snackbar_archived) {
-                            context.getString(R.string.undo)
+                        actionLabel = if (snackbarMessageRes == R.string.snackbar_archived) {
+                            undoLabel
                         } else {
                             null
                         }
@@ -122,7 +126,7 @@ fun CoffeeDetailScreen(
             } else {
                 Toast.makeText(
                     context,
-                    context.getString(R.string.validation_toast),
+                    validationToast,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -132,14 +136,14 @@ fun CoffeeDetailScreen(
                 type = "text/plain"
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    viewModel.shareText(getProcessDisplayName(context, process))
+                    viewModel.shareText(processDisplayName)
                 )
             }
 
             context.startActivity(
                 Intent.createChooser(
                     intent,
-                    context.getString(R.string.share_coffee)
+                    shareTitle
                 )
             )
         },
@@ -166,7 +170,6 @@ private fun CoffeeDetailContent(
     onArchiveClick: () -> Unit,
     onDeleteConfirm: () -> Unit
 ) {
-    val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
     var processExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -288,7 +291,7 @@ private fun CoffeeDetailContent(
                 }
             ) {
                 OutlinedTextField(
-                    value = getProcessDisplayName(context, process),
+                    value = getProcessDisplayNameRes(process)?.let { stringResource(it) } ?: process,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.process)) },
@@ -316,7 +319,7 @@ private fun CoffeeDetailContent(
                 ) {
                     processes.forEach { item ->
                         DropdownMenuItem(
-                            text = { Text(getProcessDisplayName(context, item)) },
+                            text = { Text(getProcessDisplayNameRes(item)?.let { stringResource(it) } ?: item) },
                             onClick = {
                                 onUpdateProcess(item)
                                 processExpanded = false
@@ -399,7 +402,7 @@ private fun CoffeeDetailContent(
             },
             title = {
                 Text(
-                    text = context.getString(R.string.delete_coffee_title, name),
+                    text = stringResource(R.string.delete_coffee_title, name),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )

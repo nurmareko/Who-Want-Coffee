@@ -46,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,9 +57,9 @@ import com.dresta0056.whowantcoffee.ui.theme.WhoWantCoffeeTheme
 import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.data.Coffee
 import com.dresta0056.whowantcoffee.nav.Screen
-import com.dresta0056.whowantcoffee.util.getProcessDisplayName
+import com.dresta0056.whowantcoffee.util.getProcessDisplayNameRes
 import com.dresta0056.whowantcoffee.util.ratingStars
-import com.dresta0056.whowantcoffee.util.relativeDate
+import com.dresta0056.whowantcoffee.util.relativeDateResource
 
 @Composable
 fun CoffeeListScreen(
@@ -282,7 +281,6 @@ private fun CoffeeCard(
     coffee: Coffee,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -309,7 +307,7 @@ private fun CoffeeCard(
                 )
 
                 Text(
-                    text = "${getProcessDisplayName(context, coffee.process)} · ${ratingStars(coffee.rating)}",
+                    text = "${getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process} · ${ratingStars(coffee.rating)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -325,7 +323,7 @@ private fun CoffeeCard(
             }
 
             Text(
-                text = relativeDate(context, coffee.dateAdded),
+                text = relativeDateResource(coffee.dateAdded),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -363,7 +361,6 @@ private fun GridCoffeeCard(
     coffee: Coffee,
     onClick: () -> Unit
 ) {
-    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -385,7 +382,7 @@ private fun GridCoffeeCard(
             )
 
             Text(
-                text = getProcessDisplayName(context, coffee.process),
+                text = getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

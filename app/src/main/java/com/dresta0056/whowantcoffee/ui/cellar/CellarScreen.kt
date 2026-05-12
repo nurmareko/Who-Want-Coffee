@@ -38,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,9 +48,9 @@ import androidx.navigation.NavHostController
 import com.dresta0056.whowantcoffee.R
 import com.dresta0056.whowantcoffee.data.Coffee
 import com.dresta0056.whowantcoffee.ui.theme.WhoWantCoffeeTheme
-import com.dresta0056.whowantcoffee.util.getProcessDisplayName
+import com.dresta0056.whowantcoffee.util.getProcessDisplayNameRes
 import com.dresta0056.whowantcoffee.util.ratingStars
-import com.dresta0056.whowantcoffee.util.relativeDate
+import com.dresta0056.whowantcoffee.util.relativeDateResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -229,7 +228,6 @@ private fun CellarCard(
     onRestore: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -254,7 +252,7 @@ private fun CellarCard(
                 )
 
                 val archivedText = coffee.archivedAt?.let {
-                    stringResource(R.string.archived_relative, relativeDate(context, it))
+                    stringResource(R.string.archived_relative, relativeDateResource(it))
                 } ?: stringResource(R.string.archived)
 
                 Text(
@@ -264,7 +262,7 @@ private fun CellarCard(
                 )
 
                 Text(
-                    text = "${getProcessDisplayName(context, coffee.process)} · ${ratingStars(coffee.rating)}",
+                    text = "${getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process} · ${ratingStars(coffee.rating)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
