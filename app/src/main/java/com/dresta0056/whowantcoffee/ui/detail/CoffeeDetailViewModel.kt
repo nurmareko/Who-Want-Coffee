@@ -29,7 +29,6 @@ class CoffeeDetailViewModel(
     val isEditMode: Boolean = id != null
 
     private val _currentCoffee = MutableStateFlow<Coffee?>(null)
-    val currentCoffee: StateFlow<Coffee?> = _currentCoffee
 
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name

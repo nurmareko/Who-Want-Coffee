@@ -52,6 +52,7 @@
 
     <!-- About -->
     <string name="about_title">Tentang</string>
+    <string name="about_description">Catatlah kopi yang Anda seduh setiap hari, beri peringkat, dan buatlah jurnal kopi pribadi.</string>
 
     <!-- Snackbar -->
     <string name="snackbar_added">\'%1$s\' ditambahkan.</string>
