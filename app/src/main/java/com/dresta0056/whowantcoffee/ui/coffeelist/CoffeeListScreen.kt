@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -24,6 +26,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -117,22 +121,25 @@ private fun CoffeeListContent(
                 text = {
                     Text(stringResource(R.string.add_coffee))
                 },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation()
             )
         },
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Text(
-                        text = stringResource(R.string.coffee_list_title),
-                        fontStyle = FontStyle.Italic,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            fontStyle = FontStyle.Italic,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                     navigationIconContentColor = MaterialTheme.colorScheme.primary,
                     actionIconContentColor = MaterialTheme.colorScheme.primary
@@ -142,7 +149,11 @@ private fun CoffeeListContent(
                         onClick = onToggleSort
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Sort,
+                            imageVector = if (sortOrder == "recent") {
+                                Icons.Default.Star
+                            } else {
+                                Icons.Default.Schedule
+                            },
                             contentDescription = stringResource(R.string.cd_toggle_sort)
                         )
                     }
@@ -218,7 +229,7 @@ private fun CoffeeListContent(
                         .padding(innerPadding)
                         .fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(coffees) { coffee ->
                         CoffeeCard(
@@ -258,18 +269,21 @@ private fun EmptyCoffeeList(
         Icon(
             imageVector = Icons.Default.LocalCafe,
             contentDescription = null,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .size(80.dp)
+                .padding(bottom = 16.dp),
+            tint = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = stringResource(R.string.no_coffees_logged),
+            text = "No coffees logged yet.",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = stringResource(R.string.tap_add_first),
+            text = "Tap + to add your first cup.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -285,9 +299,11 @@ private fun CoffeeCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -297,7 +313,8 @@ private fun CoffeeCard(
             verticalAlignment = Alignment.Top
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = coffee.name,
@@ -308,8 +325,8 @@ private fun CoffeeCard(
 
                 Text(
                     text = "${getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process} · ${ratingStars(coffee.rating)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 if (!coffee.notes.isNullOrBlank()) {
@@ -342,8 +359,8 @@ private fun CoffeeGrid(
         columns = StaggeredGridCells.Fixed(2),
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalItemSpacing = 8.dp
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalItemSpacing = 16.dp
     ) {
         items(coffees) { coffee ->
             GridCoffeeCard(
@@ -365,13 +382,15 @@ private fun GridCoffeeCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 text = coffee.name,
@@ -382,15 +401,9 @@ private fun GridCoffeeCard(
             )
 
             Text(
-                text = getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Text(
-                text = ratingStars(coffee.rating),
+                text = "${getProcessDisplayNameRes(coffee.process)?.let { stringResource(it) } ?: coffee.process} · ${ratingStars(coffee.rating)}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             if (!coffee.notes.isNullOrBlank()) {

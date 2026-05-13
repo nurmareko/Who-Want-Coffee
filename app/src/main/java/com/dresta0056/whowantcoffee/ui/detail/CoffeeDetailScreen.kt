@@ -31,11 +31,16 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -98,7 +104,8 @@ fun CoffeeDetailScreen(
                             undoLabel
                         } else {
                             null
-                        }
+                        },
+                        duration = SnackbarDuration.Short
                     )
 
                     if (result == SnackbarResult.ActionPerformed) {
@@ -173,6 +180,12 @@ private fun CoffeeDetailContent(
     var menuExpanded by remember { mutableStateOf(false) }
     var processExpanded by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var nameTouched by remember { mutableStateOf(false) }
+    var processTouched by remember { mutableStateOf(false) }
+    var wasSaveAttempted by remember { mutableStateOf(false) }
+
+    val nameError = (wasSaveAttempted || nameTouched) && name.isBlank()
+    val processError = (wasSaveAttempted || processTouched) && process.isBlank()
 
     val processes = listOf("Washed", "Honey", "Natural")
 
@@ -272,11 +285,14 @@ private fun CoffeeDetailContent(
         ) {
             OutlinedTextField(
                 value = name,
-                onValueChange = onUpdateName,
+                onValueChange = {
+                    onUpdateName(it)
+                    nameTouched = true
+                },
                 label = { Text(stringResource(R.string.coffee_name)) },
-                isError = name.isBlank(),
+                isError = nameError,
                 supportingText = {
-                    if (name.isBlank()) {
+                    if (nameError) {
                         Text(stringResource(R.string.validation_name_empty))
                     }
                 },
@@ -295,9 +311,9 @@ private fun CoffeeDetailContent(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.process)) },
-                    isError = process.isBlank(),
+                    isError = processError,
                     supportingText = {
-                        if (process.isBlank()) {
+                        if (processError) {
                             Text(stringResource(R.string.validation_process_empty))
                         }
                     },
@@ -322,6 +338,7 @@ private fun CoffeeDetailContent(
                             text = { Text(getProcessDisplayNameRes(item)?.let { stringResource(it) } ?: item) },
                             onClick = {
                                 onUpdateProcess(item)
+                                processTouched = true
                                 processExpanded = false
                             }
                         )
@@ -341,18 +358,28 @@ private fun CoffeeDetailContent(
 
                 Row {
                     for (star in 1..5) {
+                        val isSelected = star <= rating
+                        val interactionSource = remember { MutableInteractionSource() }
+                        val isPressed by interactionSource.collectIsPressedAsState()
+
+                        val starTint by animateColorAsState(
+                            targetValue = if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outlineVariant,
+                            label = "starTint"
+                        )
+                        val starScale by animateFloatAsState(
+                            targetValue = if (isPressed) 0.9f else if (isSelected) 1.1f else 1f,
+                            label = "starScale"
+                        )
+
                         IconButton(
-                            onClick = {
-                                onUpdateRating(star)
-                            }
+                            onClick = { onUpdateRating(star) },
+                            interactionSource = interactionSource
                         ) {
                             Icon(
-                                imageVector = if (star <= rating) {
-                                    Icons.Default.Star
-                                } else {
-                                    Icons.Outlined.Star
-                                },
-                                contentDescription = stringResource(R.string.cd_star_rating, star)
+                                imageVector = if (isSelected) Icons.Default.Star else Icons.Outlined.Star,
+                                contentDescription = stringResource(R.string.cd_star_rating, star),
+                                tint = starTint,
+                                modifier = Modifier.scale(starScale)
                             )
                         }
                     }
@@ -371,7 +398,10 @@ private fun CoffeeDetailContent(
             )
 
             Button(
-                onClick = onSave,
+                onClick = {
+                    wasSaveAttempted = true
+                    onSave()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary

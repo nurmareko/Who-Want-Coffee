@@ -52,6 +52,9 @@
 
     <!-- About -->
     <string name="about_title">About</string>
+    <string name="about_description">Log your daily brews, rate them, and keep a personal coffee journal.</string>
+    <string name="version_label">Version</string>
+    <string name="made_with_coffee">Made with ☕ by dresta0056</string>
 
     <!-- Snackbar -->
     <string name="snackbar_added">\'%1$s\' added.</string>
